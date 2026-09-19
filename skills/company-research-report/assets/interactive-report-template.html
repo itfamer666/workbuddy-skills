@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{COMPANY}} · 交互式研究报告</title>
+<style>
+:root{
+  --blue:#185FA5; --blue-d:#0C447C; --blue-l:#E6F1FB;
+  --teal:#0F6E56; --teal-l:#E1F5EE;
+  --amber:#854F0B; --amber-l:#FAEEDA;
+  --purple:#534AB7; --purple-l:#EEEDFE;
+  --red:#A32D2D; --red-l:#FCE9E9;
+  --ink:#1a1a1a; --sub:#5f5e5a; --mute:#949490;
+  --line:#e4e4e0; --bg:#f5f7f9; --card:#ffffff; --soft:#fafbfc;
+  --shadow:0 1px 3px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.05);
+}
+html[data-theme="dark"]{
+  --ink:#e8e8e6; --sub:#a8a8a2; --mute:#7e7e78;
+  --line:#2e3238; --bg:#14171b; --card:#1c2026; --soft:#22272e;
+  --blue:#6EA8E8; --blue-d:#8FBFEF; --blue-l:#1b2c42;
+  --teal:#5FC9A8; --teal-l:#14312a; --amber:#E0B25C; --amber-l:#332a15;
+  --purple:#A79BE8; --purple-l:#262142; --red:#E88A8A; --red-l:#3a1f1f;
+  --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.75;font-size:15px;transition:background .3s,color .3s;}
+#prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:1000;
+  background:linear-gradient(90deg,var(--blue),#4A9AE0);transition:width .1s linear;}
+.layout{display:grid;grid-template-columns:236px 1fr;max-width:1280px;margin:0 auto;}
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;padding:26px 14px 40px 22px;border-right:1px solid var(--line);}
+.main{padding:26px 34px 100px;min-width:0;}
+.side .brand{font-weight:800;font-size:15px;line-height:1.35;margin-bottom:4px;}
+.side .brand em{display:block;font-style:normal;font-size:11.5px;color:var(--mute);font-weight:500;letter-spacing:.5px;}
+.side nav{margin-top:18px;}
+.side nav a{display:block;padding:7px 11px;border-radius:8px;color:var(--sub);text-decoration:none;
+  font-size:13.5px;margin-bottom:2px;transition:.18s;border-left:3px solid transparent;}
+.side nav a:hover{background:var(--soft);color:var(--ink);}
+.side nav a.on{background:var(--blue-l);color:var(--blue);font-weight:700;border-left-color:var(--blue);}
+.side nav a i{display:inline-block;width:20px;font-style:normal;color:var(--mute);font-size:11px;}
+.side nav a.on i{color:var(--blue);}
+.side .tools{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--sub);border-radius:8px;
+  padding:6px 11px;font-size:12.5px;cursor:pointer;transition:.18s;font-family:inherit;}
+.btn:hover{border-color:var(--blue);color:var(--blue);}
+.hero{background:linear-gradient(135deg,var(--blue-d),var(--blue) 60%,#3B86C8);color:#fff;
+  border-radius:18px;padding:34px 36px;margin-bottom:24px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-70px;top:-70px;width:280px;height:280px;border-radius:50%;
+  background:rgba(255,255,255,.07);}
+.hero .ey{font-size:11.5px;letter-spacing:2.5px;opacity:.8;text-transform:uppercase;}
+.hero h1{margin:8px 0 6px;font-size:31px;line-height:1.28;}
+.hero p{margin:0;opacity:.9;font-size:14.5px;max-width:760px;position:relative;z-index:1;}
+.hero .chips{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1;}
+.hero .chips span{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);
+  padding:4px 12px;border-radius:20px;font-size:12.5px;}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-align:center;
+  box-shadow:var(--shadow);transition:.2s;}
+.kpi:hover{transform:translateY(-3px);border-color:var(--blue);}
+.kpi .n{font-size:27px;font-weight:800;color:var(--blue);line-height:1.15;font-variant-numeric:tabular-nums;}
+.kpi .n small{font-size:14px;font-weight:700;}
+.kpi .l{font-size:12.5px;color:var(--sub);margin-top:3px;}
+.kpi .s{font-size:10.5px;color:var(--mute);margin-top:5px;}
+section{scroll-margin-top:20px;margin-bottom:34px;}
+h2{font-size:22px;margin:0 0 16px;padding-left:13px;border-left:5px solid var(--blue);line-height:1.35;}
+h2 .num{font-size:12px;color:var(--mute);font-weight:500;}
+h3{font-size:16.5px;margin:22px 0 10px;color:var(--blue);}
+h4{font-size:14.5px;margin:16px 0 7px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;
+  margin-bottom:14px;box-shadow:var(--shadow);}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .55s cubic-bezier(.2,.7,.3,1),transform .55s cubic-bezier(.2,.7,.3,1);}
+.reveal.in{opacity:1;transform:none;}
+table{width:100%;border-collapse:collapse;font-size:13.8px;}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;}
+th{background:var(--soft);font-weight:600;}
+tbody tr:hover{background:var(--soft);}
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11.5px;font-weight:600;white-space:nowrap;}
+.t-ok{background:var(--teal-l);color:var(--teal);}
+.t-warn{background:var(--amber-l);color:var(--amber);}
+.t-info{background:var(--blue-l);color:var(--blue);}
+.t-red{background:var(--red-l);color:var(--red);}
+.t-p{background:var(--purple-l);color:var(--purple);}
+ul,ol{padding-left:21px;margin:8px 0;} li{margin:5px 0;}
+.note{background:var(--soft);border:1px solid var(--line);border-left:4px solid var(--amber);
+  border-radius:10px;padding:13px 16px;font-size:13.8px;margin:12px 0;}
+.good{background:var(--teal-l);border-left:4px solid var(--teal);border-radius:10px;padding:13px 16px;font-size:13.8px;margin:12px 0;}
+.warn{background:var(--red-l);border-left:4px solid var(--red);border-radius:10px;padding:13px 16px;font-size:13.8px;margin:12px 0;}
+.quote{background:var(--soft);border-left:4px solid var(--blue);border-radius:8px;padding:12px 16px;font-size:13.8px;margin:10px 0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--sub);border-radius:9px;
+  padding:7px 14px;font-size:13px;cursor:pointer;transition:.18s;font-family:inherit;}
+.tab:hover{border-color:var(--blue);color:var(--blue);}
+.tab.on{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:600;}
+.pane{display:none;} .pane.on{display:block;animation:fade .35s;}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--sub);border-radius:20px;
+  padding:5px 13px;font-size:12.5px;cursor:pointer;transition:.18s;font-family:inherit;}
+.chip:hover{border-color:var(--blue);color:var(--blue);}
+.chip.on{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:600;}
+.chip .c{opacity:.65;font-size:11px;margin-left:4px;}
+input[type=text],select{border:1px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:9px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;transition:.18s;}
+input[type=text]:focus,select:focus{border-color:var(--blue);}
+input[type=text]{min-width:190px;}
+.bars{margin-top:6px;}
+.brow{display:grid;grid-template-columns:118px 1fr 42px;gap:10px;align-items:center;
+  margin:5px 0;font-size:12.8px;cursor:pointer;padding:2px 4px;border-radius:7px;transition:.15s;}
+.brow:hover{background:var(--soft);}
+.brow .lb{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+.brow .tr{height:20px;background:var(--line);border-radius:5px;overflow:hidden;}
+.brow .fl{height:100%;width:0;border-radius:5px;transition:width .9s cubic-bezier(.2,.8,.3,1);}
+.brow .vl{font-variant-numeric:tabular-nums;color:var(--sub);font-weight:600;font-size:12.5px;}
+.plist{margin-top:4px;}
+.pitem{border:1px solid var(--line);border-radius:11px;margin-bottom:7px;background:var(--card);overflow:hidden;transition:.18s;}
+.pitem:hover{border-color:var(--blue);}
+.phead{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:11px 15px;cursor:pointer;}
+.phead .nm{font-weight:700;font-size:14px;}
+.phead .ad{font-size:12px;color:var(--mute);margin-top:1px;}
+.phead .rt{display:flex;align-items:center;gap:10px;}
+.phead .cnt{background:var(--blue-l);color:var(--blue);font-weight:700;font-size:12px;padding:3px 10px;border-radius:14px;white-space:nowrap;}
+.phead .ar{color:var(--mute);font-size:11px;transition:transform .25s;}
+.pitem.open .ar{transform:rotate(90deg);}
+.pbody{display:none;padding:0 15px 14px;border-top:1px dashed var(--line);}
+.pitem.open .pbody{display:block;animation:fade .3s;}
+.pbody .meta{font-size:12px;color:var(--mute);padding-top:10px;}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
+.bchip{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:2px 9px;font-size:11.8px;color:var(--sub);}
+.bchip.hl{background:var(--blue-l);border-color:var(--blue);color:var(--blue);font-weight:600;}
+.statbar{display:flex;gap:18px;flex-wrap:wrap;padding:10px 14px;background:var(--soft);
+  border:1px solid var(--line);border-radius:10px;margin-bottom:12px;font-size:13px;}
+.statbar b{color:var(--blue);font-size:16px;}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px 17px;
+  cursor:pointer;transition:.2s;box-shadow:var(--shadow);}
+.pcard:hover{border-color:var(--blue);transform:translateY(-2px);}
+.pcard.open{border-color:var(--blue);background:var(--blue-l);}
+.pcard .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.pcard .nm{font-weight:800;font-size:15.5px;}
+.pcard .rl{font-size:12px;color:var(--sub);margin-top:2px;}
+.pcard .fo{font-size:12.5px;color:var(--sub);margin-top:8px;}
+.pcard .dt{display:none;margin-top:11px;padding-top:11px;border-top:1px dashed var(--line);font-size:13.3px;}
+.pcard.open .dt{display:block;animation:fade .3s;}
+.pcard .ar{color:var(--mute);font-size:13px;flex-shrink:0;}
+.tl{position:relative;padding-left:28px;}
+.tl::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:var(--line);}
+.tli{position:relative;margin-bottom:13px;}
+.tli::before{content:'';position:absolute;left:-25px;top:7px;width:11px;height:11px;border-radius:50%;
+  background:var(--card);border:2.5px solid var(--blue);}
+.tli.key::before{background:var(--blue);box-shadow:0 0 0 3px var(--blue-l);}
+.tli .y{font-weight:800;color:var(--blue);font-size:14.5px;}
+.tli .c{font-size:13.5px;color:var(--sub);}
+.aigrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:13px;}
+.aic{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 18px;
+  box-shadow:var(--shadow);transition:.2s;border-top:4px solid var(--mute);}
+.aic:hover{transform:translateY(-3px);}
+.aic.p0{border-top-color:var(--red);} .aic.p1{border-top-color:var(--amber);}
+.aic.p2{border-top-color:var(--blue);} .aic.p3{border-top-color:var(--purple);}
+.aic .tt{font-weight:700;font-size:15px;margin:6px 0 8px;}
+.aic .bd{font-size:13.3px;color:var(--sub);}
+.aic .ft{margin-top:11px;padding-top:10px;border-top:1px dashed var(--line);font-size:12.3px;color:var(--mute);}
+.aic .ft b{color:var(--ink);}
+.ck{display:flex;align-items:flex-start;gap:11px;padding:11px 14px;border:1px solid var(--line);
+  border-radius:10px;margin-bottom:7px;background:var(--card);cursor:pointer;transition:.18s;}
+.ck:hover{border-color:var(--purple);background:var(--soft);}
+.ck.done{opacity:.55;}
+.ck.done .qt{text-decoration:line-through;}
+.ckbox{width:19px;height:19px;border:2px solid var(--line);border-radius:5px;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;transition:.18s;}
+.ck.done .ckbox{background:var(--teal);border-color:var(--teal);}
+.ckbox::after{content:'✓';color:#fff;font-size:12px;font-weight:800;opacity:0;transition:.18s;}
+.ck.done .ckbox::after{opacity:1;}
+.qt{font-size:13.6px;}
+.ckprog{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:13px;color:var(--sub);}
+.ckprog .pb{flex:1;height:8px;background:var(--line);border-radius:5px;overflow:hidden;max-width:320px;}
+.ckprog .pb i{display:block;height:100%;width:0;background:var(--teal);border-radius:5px;transition:width .4s;}
+#top{position:fixed;right:24px;bottom:26px;width:44px;height:44px;border-radius:50%;
+  background:var(--blue);color:#fff;border:none;font-size:19px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(24,95,165,.35);opacity:0;pointer-events:none;transition:.25s;z-index:900;}
+#top.show{opacity:1;pointer-events:auto;}
+.mobnav{display:none;}
+@media (max-width:1040px){
+  .layout{grid-template-columns:1fr;} .side{display:none;}
+  .mobnav{display:block;position:sticky;top:0;z-index:800;background:var(--bg);
+    border-bottom:1px solid var(--line);padding:10px 18px;overflow-x:auto;white-space:nowrap;}
+  .mobnav a{display:inline-block;margin-right:6px;padding:5px 11px;border-radius:16px;
+    background:var(--card);border:1px solid var(--line);color:var(--sub);text-decoration:none;font-size:12.5px;}
+  .mobnav a.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .main{padding:18px 18px 90px;} .kpis{grid-template-columns:repeat(2,1fr);} .grid2{grid-template-columns:1fr;}
+  .hero{padding:26px 22px;} .hero h1{font-size:24px;}
+  .brow{grid-template-columns:88px 1fr 38px;font-size:12px;}
+}
+@media print{
+  .side,.mobnav,#top,.tools,.filters,.tabs,#prog{display:none!important;}
+  .layout{grid-template-columns:1fr;} .reveal{opacity:1!important;transform:none!important;}
+  .pane{display:block!important;} .pbody,.pcard .dt{display:block!important;}
+  body{background:#fff;} .card,.aic,.pcard{box-shadow:none;break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<button id="top" title="回到顶部">↑</button>
+
+<div class="layout">
+  <aside class="side">
+    <div class="brand" id="sideBrand"></div>
+    <nav id="nav"></nav>
+    <div class="tools">
+      <button class="btn" id="themeBtn">🌗 主题</button>
+      <button class="btn" id="printBtn">🖨 打印</button>
+    </div>
+    <div style="margin-top:16px;font-size:11px;color:var(--mute);line-height:1.6;" id="sideMeta"></div>
+  </aside>
+
+  <main class="main">
+    <nav class="mobnav" id="mnav"></nav>
+
+    <div class="hero">
+      <div class="ey">Client Intelligence Report · 客户研究报告</div>
+      <h1 id="heroH1"></h1>
+      <p id="heroP"></p>
+      <div class="chips" id="heroChips"></div>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <section id="s1" class="reveal"><h2></h2><div id="sec1"></div></section>
+    <section id="s2" class="reveal"><h2></h2><div id="sec2"></div></section>
+    <section id="s3" class="reveal"><h2></h2><div id="sec3"></div></section>
+    <section id="s4" class="reveal"><h2></h2><div id="sec4"></div></section>
+    <section id="s5" class="reveal"><h2></h2><div id="sec5"></div></section>
+    <section id="s6" class="reveal"><h2></h2><div id="sec6"></div></section>
+    <section id="s7" class="reveal"><h2></h2><div id="sec7"></div></section>
+    <section id="s8" class="reveal"><h2></h2><div id="sec8"></div></section>
+    <section id="s9" class="reveal"><h2></h2><div id="sec9"></div></section>
+    <section id="s10" class="reveal"><h2></h2><div id="sec10"></div></section>
+    <section id="s11" class="reveal"><h2></h2><div id="sec11"></div></section>
+    <section id="s12" class="reveal"><h2></h2><div id="sec12"></div></section>
+  </main>
+</div>
+
+<script>
+/* =========================================================================
+   ★★★ DATA BLOCK —— 只需替换这一段（开始）★★★
+   填写规则：
+   1. 中文文案里不要用 ASCII 双引号，请用「」或“” ；写完后跑 fix_inner_quotes.py 兜底
+   2. 某组数据没有就留空数组 []，对应章节会自动隐藏
+   3. STATIC 里的 HTML 用反引号包裹，内部可自由使用任何引号
+   ========================================================================= */
+
+const CFG = {
+  company: "某某集团股份有限公司",
+  en: "COMPANY",
+  summary: "一句话企业画像：做什么的、在哪里、多大体量、什么地位。",
+  chips: ["成立年份", "总部所在地", "覆盖区域", "行业地位"],
+  date: "2026-09-18",
+  sourceNote: "官网全站 + 官方数据接口实测 + 公开报道",
+  labels: {
+    timeline: "发展历程", timelineNum: "点击展开关键转折",
+    people: "核心管理层", peopleNum: "点击卡片展开沟通要点",
+    biz: "业务板块", bizNum: "切换查看",
+    datasetA: "结构分布", datasetANum: "按分类筛选 · 点击条目可联动下方列表",
+    datasetB: "明细清单", datasetBNum: "可搜索 / 筛选 / 排序",
+    ai: "AI 应用落地机会地图", aiNum: "按优先级筛选",
+    catName: "分类", itemName: "条目", itemUnit: "项"
+  }
+};
+
+const KPIS = [
+  {n:"100", u:"亿元+", l:"年营业收入", s:"来源标注"},
+  {n:"50",  u:"亿元+", l:"品牌价值",   s:"来源标注"},
+  {n:"300", u:"万+",   l:"客户/用户",  s:"来源标注"},
+  {n:"1",   u:"万+",   l:"员工规模",   s:"来源标注"}
+];
+
+const TIMELINE = [
+  {y:2010, c:"公司成立，进入某某行业。", k:1},
+  {y:2015, c:"完成 A 轮融资，开启全国扩张。"},
+  {y:2020, c:"启动数字化转型，上线核心业务系统。", k:1},
+  {y:2026, c:"成为区域龙头，提出下一个十年战略。", k:1}
+];
+
+const PEOPLE = [
+  {n:"张某某", r:"董事长 / 实际控制人", g:"决策层", f:"长期主义、组织能力、稳健经营",
+   d:"最高决策人，在重大场合做总结定调。<br><br><span class='tag t-red'>建议话术</span>把你的方案挂到他最在意的那句话上。<br><br><span class='tag t-warn'>避免</span>风口、颠覆、替代人、短期 ROI 承诺。"},
+  {n:"李某某", r:"总经理 / 总裁", g:"决策层", f:"经营指标、精细化管理、投入产出",
+   d:"经营主推手，最可能当场拍板的人。<br><br><span class='tag t-red'>建议话术</span>直接引用他公开讲过的原话作为立项依据，并给出投入产出测算表。"},
+  {n:"王某某", r:"副总裁（分管某某）", g:"经营层", f:"条线业绩、效率、团队",
+   d:"某个业务条线的第一责任人。<br><br><span class='tag t-red'>行动建议</span>第一场业务会就应该约他。"},
+  {n:"信息管理部 / IT 负责人", r:"技术与数据条线", g:"业务对口", f:"系统稳定、数据安全、自有掌控力",
+   d:"<span class='tag t-red'>注意</span>唯一的否决点。定位为「赋能 IT 而非替代 IT」，主动提供私有化部署、可二次开发、接口开放。"}
+];
+
+const BIZ = [
+  {k:"业务板块一", s:"核心主业 · 营收基本盘",
+   h:`<p>用 2~3 句话说清这块业务做什么、怎么赚钱、在集团里什么地位。</p>
+      <table><tr><th style="width:110px">维度</th><th>详情</th></tr>
+      <tr><td>业务内容</td><td>……</td></tr>
+      <tr><td>关键数据</td><td>……</td></tr></table>`},
+  {k:"业务板块二", s:"第二增长曲线",
+   h:`<p>描述 + 对 AI 落地的意义。</p>
+      <div class="note">这块业务是<strong>高价值试验田</strong>，容易做出可见效果，适合作为样板间。</div>`}
+];
+
+/* ITEMS：可被搜索/筛选/展开的明细清单。
+   n=名称  a=副标题（地址/描述）  p=一级分类（省份/大区/品类）  b=[标签数组]  t=备注（电话/规模）
+   留空数组则第 5、6 节自动隐藏 */
+const ITEMS = [
+  {n:"示例园区 A", a:"XX 市 XX 区 XX 路 1 号", p:"华东", b:["品牌甲","品牌乙","品牌丙"], t:"规模：大"},
+  {n:"示例园区 B", a:"XX 市 XX 区 XX 路 2 号", p:"华南", b:["品牌甲","品牌丁"], t:"规模：中"}
+];
+
+/* CAT_MAP：标签 → 分类 + 配色。没有就留空对象 */
+const CAT_MAP = {
+  "品牌甲": {c:"分类一", color:"#2980b9"},
+  "品牌乙": {c:"分类二", color:"#16a085"},
+  "品牌丙": {c:"分类一", color:"#2980b9"},
+  "品牌丁": {c:"分类三", color:"#d35400"}
+};
+
+const AI = [
+  {p:"P0", t:"场景一：XX", b:"解决什么痛点，对应对方公开提出的哪个战略关键词。", o:"对口负责人/部门", m:"可量化指标：A / B / C", hl:"首选"},
+  {p:"P0", t:"场景二：XX", b:"解决什么痛点。", o:"对口负责人", m:"可量化指标", hl:""},
+  {p:"P1", t:"场景三：XX", b:"解决什么痛点。", o:"对口负责人", m:"可量化指标", hl:""},
+  {p:"P2", t:"场景四：XX", b:"解决什么痛点。", o:"对口负责人", m:"可量化指标", hl:""}
+];
+
+const QUESTIONS = [
+  "关于战略：今年提出的核心方向，落地时靠什么数据和流程做决策？",
+  "关于获客：线索从哪来？从线索到成交的漏斗，哪一环流失最严重？",
+  "关于系统：现在各业务系统之间数据是打通的还是各自独立？管理层要一个跨板块数据要多久？",
+  "关于组织：一线人员占比多少？新人从入职到能独立产出，平均培养周期多长？",
+  "关于 IT：IT 团队规模和职责？自研还是外采？对部署方式有没有既定要求？",
+  "如果只能选一个场景做试点，您希望是哪一个？判断标准是什么？"
+];
+
+const STATIC = {
+  overview: `<p style="margin:0 0 12px;">两三段话讲清：这家公司是谁、做什么、在哪、多大。<strong>把最关键的事实加粗</strong>，让读者 30 秒建立认知。</p>
+    <table>
+      <tr><th style="width:120px">项目</th><th>内容</th></tr>
+      <tr><td>官方名称</td><td>全称；主体公司（注册时间、注册资本、法定代表人）</td></tr>
+      <tr><td>联系方式</td><td>统一热线 / 官网 / 邮箱</td></tr>
+      <tr><td>品牌定位语</td><td>他们自己怎么定义自己</td></tr>
+      <tr><td>企业性质</td><td>民营 / 国有 / 外资 / 上市与否</td></tr>
+      <tr><td>行业地位</td><td>榜单、协会身份、荣誉</td></tr>
+      <tr><td>区域地位</td><td>市场份额、区域排名</td></tr>
+    </table>
+    <div class="good">这家公司最在意的三到五个身份标签是什么？把它们列出来，并说明沟通时应该挂在哪个词上。</div>`,
+
+  culture: `<div class="grid2">
+    <div class="card"><h3 style="margin-top:0">文化理念与愿景</h3>
+      <p>把官网里的文化准则、愿景目标原文列出，并加一句：<strong>这对 AI 方案意味着什么</strong>（比如愿景含「最佳雇主」，就不能用「替代人力」的叙事）。</p></div>
+    <div class="card"><h3 style="margin-top:0">人才与合规</h3>
+      <ul><li>人才理念……</li><li>在招岗位……</li><li>合规机制（举报渠道、公示制度等）……</li></ul>
+      <div class="warn">若对方对数据/员工行为高度敏感，AI 方案必须在首轮就给出<strong>数据边界、权限分级、审计留痕、私有化部署选项</strong>。</div></div>
+  </div>`,
+
+  digital: `<p style="font-size:12.8px;color:var(--mute);">先把已确认的 IT 资产列成表，再给强项/缺口判断。</p>
+    <table>
+      <tr><th style="width:150px">系统 / 能力</th><th style="width:104px">状态</th><th>证据与说明</th></tr>
+      <tr><td>OA / 协同办公</td><td><span class="tag t-ok">在用</span></td><td>品牌、上线年份、覆盖模块</td></tr>
+      <tr><td>CRM / DMS / ERP</td><td><span class="tag t-ok">在用</span></td><td>供应商、覆盖业务</td></tr>
+      <tr><td>自研团队</td><td><span class="tag t-ok">有</span></td><td>是否有研发部门/岗位证据</td></tr>
+      <tr><td>对外数字化触点</td><td><span class="tag t-ok">在用</span></td><td>小程序、公众号、自媒体矩阵</td></tr>
+    </table>
+    <div class="grid2" style="margin-top:14px;">
+      <div class="card" style="margin:0;border-left:4px solid var(--teal)"><h3 style="margin-top:0;color:var(--teal)">✅ 强项</h3><ul><li>……</li></ul></div>
+      <div class="card" style="margin:0;border-left:4px solid var(--amber)"><h3 style="margin-top:0;color:var(--amber)">⚠️ 缺口与机会</h3><ul><li>数据孤岛</li><li>知识沉淀断层</li><li>线索/转化靠人力</li><li>内容产能瓶颈</li></ul></div>
+    </div>
+    <div class="good">总判断：这家公司处在「信息化已完成 / 智能化刚起步」还是别的阶段？<strong>他们需不需要被科普 AI</strong>？需要的是可落地方案还是认知启蒙？</div>`,
+
+  strategy: `<p style="font-size:12.8px;color:var(--mute);">这一节是全报告<strong>价值最高</strong>的部分：整理目标企业在最近一次年会/半年会/公开讲话中<strong>自己说出口的需求</strong>。</p>
+    <h3>本年度战略关键词</h3>
+    <table>
+      <tr><th style="width:150px">关键词</th><th>原话要点</th><th style="width:130px">AI 切入点</th></tr>
+      <tr><td><strong>关键词一</strong></td><td>对方原话</td><td>对应的 AI 场景</td></tr>
+    </table>
+    <h3>管理层原话</h3>
+    <div class="quote">「……」—— <strong>董事长 XXX</strong></div>
+    <div class="quote">「……」—— <strong>总裁 XXX</strong></div>
+    <div class="good">AI 方案的每一个模块都应能<strong>引用上面某一句原话作为立项依据</strong>，这会让对方觉得「你真的懂我们」。</div>`,
+
+  communication: `<h3 style="margin-top:0">三个必做动作</h3>
+    <ol><li><strong>引用他们自己的话。</strong>每一页尽量挂一句对方公开提出的战略关键词。</li>
+    <li><strong>先算账，再谈技术。</strong>必有投入产出测算表，而不是功能清单。</li>
+    <li><strong>主动提合规与部署方式。</strong>主动说边界会显著加分。</li></ol>
+    <h3>切入路径建议</h3>
+    <div class="note">不要一上来谈集团级大平台。<strong>选 1 个业务单元 + 1 个场景</strong>，4~6 周做出可量化效果，再借对方已有的动员机制（年会/例会/复盘会）横向复制。<strong>顺着这家公司的组织复制基因打。</strong></div>`,
+
+  risk: `<h3 style="margin-top:0">12.1 需在现场核实的数据差异</h3>
+    <table>
+      <tr><th style="width:100px">指标</th><th>官网口径 A</th><th>官网口径 B</th><th>接口实测</th><th>第三方口径</th></tr>
+      <tr><td>客户数</td><td>……</td><td>……</td><td><strong>……</strong></td><td>……</td></tr>
+    </table>
+    <div class="warn">① <strong>正式场合只用官网口径</strong>；② 官网自身口径不一，可<strong>策略性作为开场话题</strong>（这本身说明数据治理有问题）；③ 榜单/排名<strong>以对方自述为准，不要主动提及</strong>。</div>
+    <h3>12.2 其他注意事项</h3>
+    <ul><li><strong>称谓</strong>：正式名 vs 品牌简称怎么叫</li>
+    <li><strong>禁用叙事</strong>：哪些词会触发抵触</li>
+    <li><strong>时间窗口</strong>：有没有周年庆/战略发布等天然契机</li>
+    <li><strong>竞争情报</strong>：已有的供应商和合作方，说清互补而非替代</li>
+    <li><strong>行业环境</strong>：行业是上行还是收缩，决定提案要「大投入长期」还是「小投入快见效」</li></ul>
+    <h3>12.3 信息源与可信度</h3>
+    <table>
+      <tr><th style="width:150px">来源</th><th style="width:90px">可信度</th><th>说明</th></tr>
+      <tr><td>官网全站页面</td><td><span class="tag t-ok">高</span></td><td>页面清单</td></tr>
+      <tr><td>官方数据接口</td><td><span class="tag t-ok">高</span></td><td>接口名、抓取时间</td></tr>
+      <tr><td>公开媒体报道</td><td><span class="tag t-info">中</span></td><td>媒体名</td></tr>
+      <tr><td>行业榜单</td><td><span class="tag t-warn">需核实</span></td><td>建议以对方自述为准</td></tr>
+    </table>`
+};
+
+/* ★★★ DATA BLOCK —— 结束 ★★★ */
+
+
+/* =========================================================================
+   以下为渲染引擎，一般无需修改
+   ========================================================================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+/* ---- 头部 ---- */
+$("#sideBrand").innerHTML=`${CFG.company}<em>${CFG.en} INTELLIGENCE</em>`;
+$("#sideMeta").innerHTML=`数据更新：${CFG.date}<br>来源：${CFG.sourceNote}`;
+$("#heroH1").innerHTML=`${CFG.company}<br>交互式研究报告`;
+$("#heroP").textContent=CFG.summary;
+$("#heroChips").innerHTML=CFG.chips.map(c=>`<span>${c}</span>`).join("");
+
+/* ---- KPI ---- */
+$("#kpis").innerHTML=KPIS.map(k=>`<div class="kpi"><div class="n"><b class="cu" data-t="${k.n}">0</b><small>${k.u}</small></div>
+ <div class="l">${k.l}</div><div class="s">${k.s}</div></div>`).join("");
+function countUp(el){
+  const t=parseFloat(el.dataset.t), dec=t%1!==0, dur=1100, st=performance.now();
+  (function step(now){
+    const p=Math.min((now-st)/dur,1), e=1-Math.pow(1-p,3), v=t*e;
+    el.textContent = dec ? v.toFixed(1) : Math.round(v);
+    if(p<1) requestAnimationFrame(step);
+  })(st);
+}
+
+/* ---- 通用：标题 + 正文塞进 section ---- */
+function fill(id, title, num, html){
+  const sec=$("#"+id);
+  if(!html || html.trim()===""){ sec.style.display="none"; return false; }
+  sec.querySelector("h2").innerHTML=title+(num?` <span class="num">${num}</span>`:"");
+  $("#sec"+id.slice(1)).innerHTML=html;
+  return true;
+}
+
+/* ---- s1 速览 ---- */
+fill("s1","01 · 企业速览","一页读懂这家公司",`<div class="card">${STATIC.overview}</div>`);
+
+/* ---- s2 时间轴 ---- */
+fill("s2","02 · "+CFG.labels.timeline, CFG.labels.timelineNum,
+  TIMELINE.length?`<div class="card"><div class="tl">${TIMELINE.map(t=>
+    `<div class="tli${t.k?" key":""}"><div class="y">${t.y}</div><div class="c">${t.c}</div></div>`).join("")}</div></div>`:"");
+
+/* ---- s3 管理层 ---- */
+const GROUPS=["全部",...new Set(PEOPLE.map(p=>p.g))];
+let pg="全部";
+function renderPeople(){
+  $("#sec3").innerHTML=`<div class="filters">${GROUPS.map(g=>
+    `<button class="chip${g===pg?" on":""}" data-g="${g}">${g}</button>`).join("")}</div>
+   <div class="pgrid">${PEOPLE.filter(p=>pg==="全部"||p.g===pg).map(p=>
+    `<div class="pcard"><div class="hd"><div><div class="nm">${p.n}</div><div class="rl">${p.r}</div></div><div class="ar">▸</div></div>
+     <div class="fo">关心：${p.f}</div><div class="dt">${p.d}</div></div>`).join("")}</div>`;
+  $$("#sec3 .pcard").forEach(c=>c.onclick=()=>c.classList.toggle("open"));
+  $$("#sec3 .chip").forEach(c=>c.onclick=()=>{pg=c.dataset.g;renderPeople();});
+}
+if(PEOPLE.length){ $("#s3 h2").innerHTML=`03 · ${CFG.labels.people} <span class="num">${CFG.labels.peopleNum}</span>`; renderPeople(); }
+else $("#s3").style.display="none";
+
+/* ---- s4 业务板块 ---- */
+if(BIZ.length){
+  $("#s4 h2").innerHTML=`04 · ${CFG.labels.biz} <span class="num">${CFG.labels.bizNum}</span>`;
+  $("#sec4").innerHTML=`<div class="tabs">${BIZ.map((b,i)=>
+    `<button class="tab${i?"":" on"}" data-i="${i}">${b.k}</button>`).join("")}</div>
+    <div>${BIZ.map((b,i)=>`<div class="pane${i?"":" on"}"><div class="card">
+      <h3 style="margin-top:0">${b.k} <span style="font-size:12.5px;color:var(--mute);font-weight:500">· ${b.s}</span></h3>
+      ${b.h}</div></div>`).join("")}</div>`;
+  $$("#sec4 .tab").forEach(t=>t.onclick=()=>{
+    $$("#sec4 .tab").forEach(x=>x.classList.remove("on")); t.classList.add("on");
+    $$("#sec4 .pane").forEach((p,i)=>p.classList.toggle("on", i==t.dataset.i));
+  });
+} else $("#s4").style.display="none";
+
+/* ---- 数据集聚合 ---- */
+const TAG={};
+ITEMS.forEach(it=>(it.b||[]).forEach(b=>{ TAG[b]=TAG[b]||{n:b,c:0}; TAG[b].c++; }));
+const tagArr=Object.values(TAG).sort((a,b)=>b.c-a.c);
+const CATS=["全部",...new Set(tagArr.map(t=>(CAT_MAP[t.n]||{c:"其他"}).c))];
+const state={p:"all",q:"",tag:"",sort:"cnt"};
+let cA="全部";
+
+function renderTags(){
+  const list = cA==="全部" ? tagArr : tagArr.filter(t=>(CAT_MAP[t.n]||{c:"其他"}).c===cA);
+  const max = Math.max(1,...list.map(t=>t.c));
+  $("#tagBars").innerHTML=list.map(t=>{
+    const m=CAT_MAP[t.n]||{c:"其他",color:"#7f8c8d"};
+    return `<div class="brow" data-t="${t.n}"><div class="lb">${t.n}</div>
+      <div class="tr"><div class="fl" style="background:${m.color}" data-w="${(t.c/max*100).toFixed(1)}"></div></div>
+      <div class="vl">${t.c}</div></div>`;
+  }).join("");
+  $("#catName").textContent=cA;
+  $("#catTotal").textContent=list.reduce((s,t)=>s+t.c,0);
+  requestAnimationFrame(()=>$$("#tagBars .fl").forEach(f=>f.style.width=f.dataset.w+"%"));
+  $$("#tagBars .brow").forEach(r=>r.onclick=()=>{
+    state.tag=r.dataset.t; $("#q2").value=r.dataset.t; renderItems();
+    $("#s6").scrollIntoView({behavior:"smooth",block:"start"});
+    $("#s6").animate([{boxShadow:"0 0 0 0 rgba(24,95,165,0)"},
+      {boxShadow:"0 0 0 6px rgba(24,95,165,.25)"},
+      {boxShadow:"0 0 0 0 rgba(24,95,165,0)"}],{duration:900});
+  });
+}
+
+function renderItems(){
+  const kw=state.q.trim().toLowerCase();
+  let list=ITEMS.filter(it=>{
+    if(state.p!=="all" && it.p!==state.p) return false;
+    if(kw && !((it.n||"")+(it.a||"")+(it.t||"")+(it.b||[]).join("")).toLowerCase().includes(kw)) return false;
+    return true;
+  });
+  if(state.sort==="cnt") list=list.slice().sort((a,b)=>(b.b||[]).length-(a.b||[]).length);
+  else list=list.slice().sort((a,b)=>a.n.localeCompare(b.n,"zh"));
+  const bs=new Set(); list.forEach(it=>(it.b||[]).forEach(b=>bs.add(b)));
+  $("#fItems").textContent=list.length;
+  $("#fTags").textContent=list.reduce((s,it)=>s+(it.b||[]).length,0);
+  $("#fCats").textContent=bs.size;
+  $("#itemList").innerHTML = list.length ? list.map(it=>`
+    <div class="pitem"><div class="phead">
+      <div><div class="nm">${it.n} <span class="tag t-info" style="margin-left:4px">${it.p||""}</span></div>
+        <div class="ad">${it.a||""}</div></div>
+      <div class="rt"><span class="cnt">${(it.b||[]).length} ${CFG.labels.itemUnit}</span><span class="ar">▸</span></div></div>
+      <div class="pbody"><div class="meta">${it.t||""}</div>
+        <div class="chips">${(it.b||[]).map(b=>`<span class="bchip${b===state.tag?" hl":""}">${b}</span>`).join("")}</div></div></div>`).join("")
+    : `<div style="padding:26px;text-align:center;color:var(--mute)">没有匹配的${CFG.labels.itemName}，换个关键词试试</div>`;
+  $$("#itemList .phead").forEach(h=>h.onclick=()=>h.parentElement.classList.toggle("open"));
+}
+
+if(ITEMS.length && tagArr.length){
+  $("#s5 h2").innerHTML=`05 · ${CFG.labels.datasetA} <span class="num">${CFG.labels.datasetANum}</span>`;
+  $("#sec5").innerHTML=`<div class="card"><div class="filters" id="catFilters">
+      ${CATS.map(c=>`<button class="chip${c==="全部"?" on":""}" data-c="${c}">${c}<span class="c">${
+        c==="全部"?tagArr.length:tagArr.filter(t=>(CAT_MAP[t.n]||{c:"其他"}).c===c).length}</span></button>`).join("")}</div>
+    <div class="bars" id="tagBars"></div>
+    <div style="margin-top:12px;font-size:12px;color:var(--mute);">
+      共 <b id="tagTotal">${tagArr.length}</b> 个${CFG.labels.catName} · 当前分类 <b id="catName">全部</b> 合计 <b id="catTotal">0</b> ${CFG.labels.itemUnit}</div></div>`;
+  renderTags();
+  $$("#catFilters .chip").forEach(c=>c.onclick=()=>{
+    $$("#catFilters .chip").forEach(x=>x.classList.remove("on")); c.classList.add("on");
+    cA=c.dataset.c; renderTags();
+  });
+} else { $("#s5").style.display="none"; $("#s6").style.display="none"; }
+
+if(ITEMS.length){
+  const PS=[...new Set(ITEMS.map(it=>it.p).filter(Boolean))];
+  $("#s6 h2").innerHTML=`06 · ${CFG.labels.datasetB} <span class="num">${CFG.labels.datasetBNum}</span>`;
+  $("#sec6").innerHTML=`<div class="card"><div class="filters">
+      <input type="text" id="q2" placeholder="🔍 搜索名称 / 描述 / 标签…">
+      <select id="pSel"><option value="all">全部${CFG.labels.catName}</option>${
+        PS.map(p=>`<option value="${p}">${p}（${ITEMS.filter(i=>i.p===p).length}）</option>`).join("")}</select>
+      <select id="sortSel"><option value="cnt">按数量排序</option><option value="name">按名称排序</option></select>
+      <button class="chip" id="clearF">清除筛选</button></div>
+    <div class="statbar"><div>${CFG.labels.itemName} <b id="fItems">0</b></div>
+      <div>累计 <b id="fTags">0</b> ${CFG.labels.itemUnit}</div>
+      <div>涉及${CFG.labels.catName} <b id="fCats">0</b></div></div>
+    <div class="plist" id="itemList"></div></div>`;
+  renderItems();
+  $("#q2").oninput=e=>{state.q=e.target.value;state.tag="";renderItems();};
+  $("#pSel").onchange=e=>{state.p=e.target.value;renderItems();};
+  $("#sortSel").onchange=e=>{state.sort=e.target.value;renderItems();};
+  $("#clearF").onclick=()=>{state.p="all";state.q="";state.tag="";$("#q2").value="";$("#pSel").value="all";renderItems();};
+}
+
+/* ---- s7~s9 静态章节 ---- */
+fill("s7","07 · 企业文化与人才","理解这家公司的软约束",STATIC.culture);
+fill("s8","08 · 数字化与信息化现状诊断","信息化已完成还是智能化刚起步",STATIC.digital);
+fill("s9","09 · 战略重心","他们自己说出口的需求",STATIC.strategy);
+
+/* ---- s10 AI 机会 ---- */
+const PRIOS=["全部","P0","P1","P2","P3"];
+if(AI.length){
+  $("#s10 h2").innerHTML=`10 · ${CFG.labels.ai} <span class="num">${CFG.labels.aiNum}</span>`;
+  const renderAI=(p)=>{
+    const list = p==="全部"?AI:AI.filter(a=>a.p===p);
+    $("#sec10").innerHTML=`<div class="filters">${PRIOS.map(x=>
+      `<button class="chip${x===p?" on":""}" data-p="${x}">${x}<span class="c">${
+        x==="全部"?AI.length:AI.filter(a=>a.p===x).length}</span></button>`).join("")}</div>
+      <div class="aigrid">${list.map(a=>`<div class="aic ${a.p.toLowerCase()}">
+        <div><span class="tag ${a.p==="P0"?"t-red":a.p==="P1"?"t-warn":a.p==="P2"?"t-info":"t-p"}">${a.p}</span>
+        ${a.hl?`<span class="tag t-red" style="margin-left:4px">${a.hl}</span>`:""}</div>
+        <div class="tt">${a.t}</div><div class="bd">${a.b}</div>
+        <div class="ft"><b>对口：</b>${a.o}<br><b>指标：</b>${a.m}</div></div>`).join("")}</div>`;
+    $$("#sec10 .chip").forEach(c=>c.onclick=()=>renderAI(c.dataset.p));
+  };
+  renderAI("全部");
+} else $("#s10").style.display="none";
+
+/* ---- s11 沟通策略 + 清单 ---- */
+if(STATIC.communication || QUESTIONS.length){
+  $("#s11 h2").innerHTML=`11 · 沟通策略 <span class="num">分角色话术 + 破冰问题清单</span>`;
+  const CK="crr_checklist_v1";
+  let ckd=JSON.parse(localStorage.getItem(CK)||"[]");
+  const renderCK=()=>{
+    $("#ckList").innerHTML=QUESTIONS.map((q,i)=>`
+      <div class="ck${ckd.includes(i)?" done":""}" data-i="${i}">
+        <div class="ckbox"></div><div class="qt"><b>Q${i+1}.</b> ${q}</div></div>`).join("");
+    $$("#ckList .ck").forEach(c=>c.onclick=()=>{
+      const i=+c.dataset.i, k=ckd.indexOf(i);
+      if(k>-1) ckd.splice(k,1); else ckd.push(i);
+      localStorage.setItem(CK,JSON.stringify(ckd)); renderCK();
+    });
+    $("#ckN").textContent=ckd.length;
+    $("#ckBar").style.width=(ckd.length/QUESTIONS.length*100)+"%";
+  };
+  $("#sec11").innerHTML=`<div class="card">${STATIC.communication}</div>
+    <div class="card"><h3 style="margin-top:0">破冰提问清单 <span class="tag t-p">点击勾选 · 自动保存</span></h3>
+    <div class="ckprog"><span>已记录：<b id="ckN">0</b>/${QUESTIONS.length}</span>
+      <div class="pb"><i id="ckBar"></i></div><button class="btn" id="ckClear">清空</button></div>
+    <div id="ckList"></div>
+    <p style="font-size:12.5px;color:var(--mute);margin-top:12px;">把对话从「AI 能做什么」切换到「您的业务卡在哪里」。对方每回答一个问题，就等于为你免费做了一次需求调研。</p></div>`;
+  renderCK();
+  $("#ckClear").onclick=()=>{ckd=[];localStorage.setItem(CK,"[]");renderCK();};
+} else $("#s11").style.display="none";
+
+fill("s12","12 · 风险提示","数据口径差异与注意事项",`<div class="card">${STATIC.risk}</div>
+  <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--line);font-size:12.3px;color:var(--mute);">
+    <strong>${CFG.company} 交互式研究报告</strong>　｜　调研完成：${CFG.date}　｜　用途：AI 应用落地前期调研与客户高层沟通底稿<br>
+    标注「实测」的数据取自官方接口；「第三方口径」仅供内部参考，对外沟通请以官网及对方自述为准。</div>`);
+
+/* ---- 导航：按可见章节生成 ---- */
+const NAMES={s1:"企业速览",s2:CFG.labels.timeline,s3:CFG.labels.people,s4:CFG.labels.biz,
+  s5:CFG.labels.datasetA,s6:CFG.labels.datasetB,s7:"文化与人才",s8:"数字化诊断",
+  s9:"战略重心",s10:"AI 机会地图",s11:"沟通策略",s12:"风险提示"};
+const visible=$$("main section").filter(s=>s.style.display!=="none");
+$("#nav").innerHTML=visible.map((s,i)=>
+  `<a href="#${s.id}"><i>${String(i+1).padStart(2,"0")}</i>${NAMES[s.id]||s.id}</a>`).join("");
+$("#mnav").innerHTML=visible.map(s=>`<a href="#${s.id}">${NAMES[s.id]||s.id}</a>`).join("");
+const navA=$$("#nav a"), mnavA=$$("#mnav a");
+
+/* ---- 滚动行为 ---- */
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); $$("#kpis .cu").forEach(countUp); } });
+},{threshold:.08});
+$$(".reveal").forEach(s=>io.observe(s));
+
+const io2=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const id=e.target.id;
+    navA.forEach(a=>a.classList.toggle("on", a.getAttribute("href")==="#"+id));
+    mnavA.forEach(a=>a.classList.toggle("on", a.getAttribute("href")==="#"+id));
+  });
+},{rootMargin:"-15% 0px -70% 0px"});
+visible.forEach(s=>io2.observe(s));
+
+addEventListener("scroll",()=>{
+  const h=document.documentElement;
+  $("#prog").style.width = h.scrollTop/(h.scrollHeight-h.clientHeight)*100+"%";
+  $("#top").classList.toggle("show", h.scrollTop>500);
+},{passive:true});
+$("#top").onclick=()=>scrollTo({top:0,behavior:"smooth"});
+
+document.addEventListener("click",e=>{
+  const a=e.target.closest('a[href^="#"]');
+  if(a){ e.preventDefault(); const t=$(a.getAttribute("href"));
+    if(t && t.style.display!=="none") t.scrollIntoView({behavior:"smooth",block:"start"}); }
+});
+
+$("#themeBtn").onclick=()=>{
+  const d=document.documentElement.dataset.theme==="dark"?"light":"dark";
+  document.documentElement.dataset.theme=d; localStorage.setItem("crr_theme",d);
+};
+if(localStorage.getItem("crr_theme")) document.documentElement.dataset.theme=localStorage.getItem("crr_theme");
+$("#printBtn").onclick=()=>print();
+</script>
+</body>
+</html>

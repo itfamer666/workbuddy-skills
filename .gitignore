@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# 客户原始数据与中间产物不入库
+recon/
+raw/
+api/
+*_调研/
