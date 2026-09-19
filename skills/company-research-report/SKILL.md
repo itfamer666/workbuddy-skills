@@ -1,6 +1,12 @@
 ---
 name: company-research-report
+slug: company-research-report
+version: 1.0.0
+displayName: 企业研究报告生成器
+summary: 输入一个网址或企业名，产出能和董事长对话的交互式研究报告——全站侦察、隐藏接口挖掘、管理层地图、AI 机会地图一气呵成。
 description: 输入一个企业网址或企业名称，产出可用于 AI 应用落地前期沟通的「交互式企业研究报告」。自动做全站侦察（含隐藏数据接口挖掘）、外部情报交叉验证、12 章报告撰写、单文件交互 HTML 输出与交付前校验。当用户说"调研这家公司""看看这个网站""出一份 XX 的研究报告""了解下 XX 企业""做客户背景调查""见面前的背景材料"时使用。
+tags: [调研, 企业研究, 报告生成, AI落地, 客户背景, 竞调]
+license: MIT
 agent_created: true
 ---
 
